@@ -2,8 +2,17 @@
 #include <stdio.h>
 #include <stdint.h>
 
-main() {
-    
+int main() {
+    int n = 100;
+    int TEMP = 1000;
+    init();
+    while(True && n > 0){
+        printf("Current temperature: %f\n" % getThermoCoupleTemp());
+        if(set_to_temp()){
+            n--;
+        }
+    }
+    cleanup()
 }
 
 void init() {
@@ -18,8 +27,7 @@ void init() {
 	//	BCM2835_SPI_MODE2 = 2,  // CPOL = 1, CPHA = 0, Clock idle low, data is clocked in on falling edge, output data (change) on rising edge
 	//	BCM2835_SPI_MODE3 = 3,  // CPOL = 1, CPHA = 1, Clock idle low, data is clocked in on rising, edge output data (change) on falling edge
     
-    bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);    
-}
+    bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);    }
 
 /**
  * Returns 4 times the actual temperature, because screw it.
@@ -42,6 +50,16 @@ float getThermoCoupleTemp() {
     actual = value_times_4/4.0f;
 
     return actual;
+}
+
+int set_to_temp(int temp){
+    if(temp < getThermoCoupleTemp()){
+        bcm2835_gpio_clr(RPI_V2_GPIO_P1_11);
+        return 0;
+    }else{
+        bcm2835_gpio_set(RPI_V2_GPIO_P1_11);
+        return 1;
+    }
 }
 
 void cleanup() {
